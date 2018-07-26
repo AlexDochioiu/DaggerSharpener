@@ -6,6 +6,7 @@ def processorLibraryVersion = "0.0.1"
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    api 'com.squareup:javapoet:1.11.1'
 }
 
 sourceCompatibility = JavaVersion.VERSION_1_7
