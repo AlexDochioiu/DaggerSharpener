@@ -25,7 +25,7 @@ import java.lang.annotation.Target;
  *
  * <b>NOTE:</b> When {@link SharpScope} is applied to a component, DaggerSharpener will automatically
  * generate a scope for that particular component!
- * <b>NOTE2:</b> When {@link SharpScope} is applied to a field
+ * <b>NOTE2:</b> When {@link SharpScope} is applied to a field TODO think this through
  */
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.ANNOTATION_TYPE)

@@ -17,8 +17,12 @@ package com.github.alexdochioiu.daggersharpenerprocessor;
 
 import com.github.alexdochioiu.daggersharpenerprocessor.models.SharpComponentModel;
 import com.github.alexdochioiu.daggersharpenerprocessor.utils.SharpComponentUtils;
+import com.github.alexdochioiu.daggersharpenerprocessor.utils.SharpenerAnnotationUtils;
 import com.github.alexdochioiu.daggersharpenerprocessor.utils.dagger2.AnnotationUtils;
 import com.github.alexdochioiu.daggersharpenerprocessor.utils.dagger2.ScopeUtils;
+import com.squareup.javapoet.AnnotationSpec;
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
@@ -46,6 +50,7 @@ import javax.lang.model.element.TypeElement;
 @SupportedAnnotationTypes({
         "com.github.alexdochioiu.daggersharpener.SharpComponent",
         "com.github.alexdochioiu.daggersharpener.SharpScope",
+        "com.github.alexdochioiu.daggersharpener.NoScope",
         "com.github.alexdochioiu.daggersharpener.SharpInject",
         "com.github.alexdochioiu.daggersharpener.SharpProvides"
 })
@@ -64,11 +69,13 @@ public class SharpProcessor extends AbstractProcessor {
 
         initFinishedSuccessfully &= AnnotationUtils.init(processingEnvironment);
         initFinishedSuccessfully &= ScopeUtils.init(processingEnvironment);
+        initFinishedSuccessfully &= SharpenerAnnotationUtils.init(processingEnvironment);
     }
 
     @Override
     public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnvironment) {
         if (!initFinishedSuccessfully) {
+            // TODO message
             return false;
         }
 
@@ -80,12 +87,20 @@ public class SharpProcessor extends AbstractProcessor {
     }
 
     private void createDaggerComponent(SharpComponentModel model) {
-        TypeSpec.Builder generatedComponentBuilder = TypeSpec.interfaceBuilder(model.componentName)
+        TypeSpec.Builder generatedComponentBuilder = TypeSpec.interfaceBuilder(model.getComponentName())
                 .addAnnotation(AnnotationUtils.getDaggerComponentAnnotation())
                 .addModifiers(Modifier.PUBLIC);
 
-        ParameterSpec param = ParameterSpec.builder(model.injectedClass, "thisClass").build();
+        if (model.scope.isSharpScoped()) {
+            createDaggerSharpScope(model);
 
+            generatedComponentBuilder.addAnnotation(ClassName.get(model.packageString, model.getSharpScopeName()));
+        } else {
+            ClassName className = (ClassName) ClassName.get(model.scope.getScopeTypeMirror());
+            generatedComponentBuilder.addAnnotation(className);
+        }
+
+        ParameterSpec param = ParameterSpec.builder(model.injectedClass, "thisClass").build();
 
         generatedComponentBuilder.addMethod(
                 MethodSpec.methodBuilder("inject")
@@ -102,19 +117,15 @@ public class SharpProcessor extends AbstractProcessor {
                     .writeTo(processingEnvironment.getFiler());
         } catch (IOException e) {
             e.printStackTrace();
-            MessagerWrapper.logError(String.format("Could not generate component '%s'", model.componentName));
+            MessagerWrapper.logError(String.format("Could not generate component '%s'", model.getComponentName()));
         }
     }
 
     private List<SharpComponentModel> getComponents(RoundEnvironment roundEnvironment) {
         final List<SharpComponentModel> componentModels = new ArrayList<>(); //TODO consider switching to linked list
 
-        final TypeElement sharpComponentType = processingEnv
-                .getElementUtils()
-                .getTypeElement("com.github.alexdochioiu.daggersharpener.SharpComponent");
-
         // get all the classes annotated as SharpComponent
-        final Set<? extends Element> sharpClasses = roundEnvironment.getElementsAnnotatedWith(sharpComponentType);
+        final Set<? extends Element> sharpClasses = roundEnvironment.getElementsAnnotatedWith(SharpenerAnnotationUtils.getSharpComponentAnnotation());
 
         // if there's no classes annotated, return our empty list
         if (sharpClasses == null || sharpClasses.isEmpty()) {
@@ -133,5 +144,33 @@ public class SharpProcessor extends AbstractProcessor {
         }
 
         return componentModels;
+    }
+
+    /**
+     * <b>NOTE:</b> this assumes we already checked and a scope should be created for this component.
+     * @param model the {@link SharpComponentModel} requiring a scope
+     */
+    private void createDaggerSharpScope(SharpComponentModel model) {
+        AnnotationSpec runtimeRetention = AnnotationSpec.builder(ClassName.get(ScopeUtils.getRetentionElement()))
+                .addMember("value", CodeBlock.builder().add("$T.RUNTIME", ScopeUtils.getRetentionPolicyElement()).build())
+                .build();
+
+        TypeSpec generatedScopeBuilder = TypeSpec.annotationBuilder(model.getSharpScopeName())
+                .addAnnotation(ClassName.get(ScopeUtils.getScopeElement()))
+                .addAnnotation(runtimeRetention)
+                .addModifiers(Modifier.PUBLIC)
+                .build();
+
+        try {
+            JavaFile.builder(model.packageString, generatedScopeBuilder)
+                    .addFileComment("Generated by DaggerSharpener")
+                    .build()
+                    .writeTo(processingEnvironment.getFiler());
+        } catch (IOException e) {
+            e.printStackTrace();
+            MessagerWrapper.logError(String.format("Could not generate scope '%s' for component '%s'", model.getSharpScopeName(), model.getComponentName()));
+        }
+
+        // return generatedScopeBuilder;
     }
 }

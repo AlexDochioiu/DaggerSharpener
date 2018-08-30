@@ -38,8 +38,8 @@ public @interface SharpComponent {
     Class<?>[] dependencies() default {};
 
     /**
-     * A scope for the component. If no scope is given, one would be created automatically and used
-     * for this sharp component.
+     * A scope for the component. {@link SharpScope} will create a new scope for this component.
+     * <b>NOTE:</b> Using {@link NoScope} is not allowed for components
      */
     Class<?> scope() default SharpScope.class;
 }

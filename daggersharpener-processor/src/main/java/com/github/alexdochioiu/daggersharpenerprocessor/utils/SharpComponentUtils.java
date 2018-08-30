@@ -23,6 +23,6 @@ public class SharpComponentUtils {
         final TypeElement typeElement = (TypeElement) element;
         final ClassName className = ClassName.get(typeElement);
 
-        return new SharpComponentModel(className, typeElement);
+        return new SharpComponentModel(className, typeElement, processingEnvironment);
     }
 }
