@@ -30,13 +30,13 @@ import com.squareup.javapoet.TypeSpec;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
-import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
@@ -47,15 +47,21 @@ import javax.lang.model.element.TypeElement;
 /**
  * Created by Alexandru Iustin Dochioiu on 7/26/2018
  */
-@SupportedAnnotationTypes({
-        "com.github.alexdochioiu.daggersharpener.SharpComponent",
-        "com.github.alexdochioiu.daggersharpener.SharpScope",
-        "com.github.alexdochioiu.daggersharpener.NoScope",
-        "com.github.alexdochioiu.daggersharpener.SharpInject",
-        "com.github.alexdochioiu.daggersharpener.SharpProvides"
-})
+
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public class SharpProcessor extends AbstractProcessor {
+
+    @Override
+    public Set<String> getSupportedAnnotationTypes() {
+        Set<String> supportedAnnotation = new LinkedHashSet<>();
+        supportedAnnotation.add("com.github.alexdochioiu.daggersharpener.SharpComponent");
+        supportedAnnotation.add("com.github.alexdochioiu.daggersharpener.SharpScope");
+        supportedAnnotation.add("com.github.alexdochioiu.daggersharpener.NoScope");
+        supportedAnnotation.add("com.github.alexdochioiu.daggersharpener.SharpInject");
+        supportedAnnotation.add("com.github.alexdochioiu.daggersharpener.SharpProvides");
+
+        return supportedAnnotation;
+    }
 
     private ProcessingEnvironment processingEnvironment;
     private boolean initFinishedSuccessfully = true;
@@ -88,7 +94,11 @@ public class SharpProcessor extends AbstractProcessor {
 
     private void createDaggerComponent(SharpComponentModel model) {
         TypeSpec.Builder generatedComponentBuilder = TypeSpec.interfaceBuilder(model.getComponentName())
-                .addAnnotation(AnnotationUtils.getDaggerComponentAnnotation())
+                .addAnnotation(AnnotationUtils.getDaggerComponentAnnotation(
+                        processingEnvironment,
+                        model.getComponentDependencies(),
+                        model.getComponentSharpDependencies(),
+                        model.getComponentModules()))
                 .addModifiers(Modifier.PUBLIC);
 
         if (model.scope.isSharpScoped()) {

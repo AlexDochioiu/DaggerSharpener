@@ -1,4 +1,4 @@
-package com.github.alexdochioiu.example.sc;
+package com.github.alexdochioiu.daggersharpenerprocessor.test1res;
 
 import javax.inject.Scope;
 

@@ -30,16 +30,18 @@ public class SharpComponentModel {
     public final String packageString;
     public final String className;
     public final SharpScopeModel scope;
-    public final List<TypeMirror> classesProvided = new LinkedList<>();
 
-    public final List<TypeMirror> componentDependencies = new LinkedList<>();
-    public final List<TypeMirror> componentModules = new LinkedList<>();
+    private final List<AnnotationValue> componentDependencies = new LinkedList<>();
+    private final List<AnnotationValue> componentSharpDependencies = new LinkedList<>();
+    private final List<AnnotationValue> componentModules = new LinkedList<>();
+    private final List<AnnotationValue> componentProvides = new LinkedList<>();
+
 
     /**
      * Constructor
      *
-     * @param poetClassName   non-null class name
-     * @param typeElement non-null type element for a class
+     * @param poetClassName non-null class name
+     * @param typeElement   non-null type element for a class
      */
     public SharpComponentModel(final ClassName poetClassName, final TypeElement typeElement, final ProcessingEnvironment processingEnvironment) {
         injectedClass = TypeName.get(typeElement.asType());
@@ -70,6 +72,7 @@ public class SharpComponentModel {
                     String key = entry.getKey().getSimpleName().toString();
                     Object value = entry.getValue().getValue();
                     MessagerWrapper.logWarning(">> key: %s", key);
+
                     switch (key) {
                         case "scope":
                             TypeMirror classType = (TypeMirror) value;
@@ -78,10 +81,52 @@ public class SharpComponentModel {
                             MessagerWrapper.logWarning(">> scope: %s\n", classType);
                             foundScopeTag = true;
                             break;
-                            //TODO rest of them
-                        case "stringValue":
-                            String strVal = (String) value;
-                            System.out.printf(">> stringValue: %s\n", strVal);
+                        case "modules":
+                            @SuppressWarnings("unchecked") List<? extends AnnotationValue> annotaionModules
+                                    = (List<? extends AnnotationValue>) value;
+
+                            componentModules.addAll(annotaionModules);
+
+                            for (AnnotationValue annotationValue : annotaionModules) {
+                                MessagerWrapper.logWarning(">> module: %s", annotationValue);
+                            }
+
+                            break;
+                        case "sharpDependencies":
+                            //TODO check the classes annotated as SharpComponents
+                            @SuppressWarnings("unchecked") List<? extends AnnotationValue> annotationSharpDependencies
+                                    = (List<? extends AnnotationValue>) value;
+
+                            componentSharpDependencies.addAll(annotationSharpDependencies);
+
+                            for (AnnotationValue annotationValue : annotationSharpDependencies) {
+                                MessagerWrapper.logWarning(">> sharpDependencies: %s", annotationValue);
+                            }
+                            break;
+                        case "dependencies":
+                            // THIS IS FOR MANUALLY CREATED DEPENDENCIES (not sharp dependencies)
+                            //TODO check the classes are indeed dagger components
+                            @SuppressWarnings("unchecked") List<? extends AnnotationValue> annotationDependencies
+                                    = (List<? extends AnnotationValue>) value;
+
+                            componentDependencies.addAll(annotationDependencies);
+
+                            for (AnnotationValue annotationValue : annotationDependencies) {
+                                MessagerWrapper.logWarning(">> dependency: %s", annotationValue);
+                            }
+                            break;
+                        case "provides":
+                            @SuppressWarnings("unchecked") List<? extends AnnotationValue> annotationProvides
+                                    = (List<? extends AnnotationValue>) value;
+
+                            componentProvides.addAll(annotationProvides);
+
+                            for (AnnotationValue annotationValue : annotationProvides) {
+                                MessagerWrapper.logWarning(">> provides: %s", annotationValue);
+                            }
+                            break;
+                        default:
+                            MessagerWrapper.logWarning("Unknown parameter '%s' on SharpComponent", key);
                             break;
                     }
                 }
@@ -104,5 +149,21 @@ public class SharpComponentModel {
 
     public String getSharpScopeName() {
         return String.format(Locale.UK, SharpEnvConstants.scopeNameStringPattern, className);
+    }
+
+    public List<AnnotationValue> getComponentDependencies() {
+        return new LinkedList<>(componentDependencies);
+    }
+
+    public List<AnnotationValue> getComponentSharpDependencies() {
+        return componentSharpDependencies;
+    }
+
+    public List<AnnotationValue> getComponentModules() {
+        return new LinkedList<>(componentModules);
+    }
+
+    public List<AnnotationValue> getComponentProvides() {
+        return new LinkedList<>(componentProvides);
     }
 }
