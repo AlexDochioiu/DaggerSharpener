@@ -53,7 +53,7 @@ public class AnnotationUtils {
             daggerComponentBuilder.addMember("modules", getAnnotationValuesAsCodeBlock(processingEnvironment, modules));
         }
         if (dependencies.size() > 0 || sharpDependencies.size() > 0) {
-            daggerComponentBuilder.addMember("dependencies", getDependenciesAsString(sharpDependencies, dependencies));
+            daggerComponentBuilder.addMember("dependencies", getDependenciesAsCodeBlock(sharpDependencies, dependencies));
         }
 
         return daggerComponentBuilder.build();
@@ -88,35 +88,42 @@ public class AnnotationUtils {
     /**
      * Returns a CodeBlock something like: "{A.class, B.class}" with the included packages to have visibility for the classes
      */
-    private static String getDependenciesAsString(
+    private static CodeBlock getDependenciesAsCodeBlock(
             List<AnnotationValue> sharpDependencies,
             List<AnnotationValue> daggerDependencies
     ) {
         final StringBuilder stringBuilderCodeBlock = new StringBuilder();
+        final List<ClassName> classes = new LinkedList<>();
 
         stringBuilderCodeBlock.append("{");
         for (AnnotationValue annotationValue : sharpDependencies) {
-            String moduleClassName = annotationValue.toString(); // includes .class at the end
-            moduleClassName = moduleClassName.substring(0, moduleClassName.length() - 6); // remove .class at the end
+            String classFullName = annotationValue.toString(); // includes .class at the end
+            classFullName = classFullName.substring(0, classFullName.length() - 6); // remove .class at the end
 
-            // get the simple name of the sharp component to be generated
-            final String sharpComponentSimpleName = String.format(SharpEnvConstants.componentNameStringPattern, moduleClassName.substring(moduleClassName.lastIndexOf(".") + 1));
+            final String classSimpleName = String.format(SharpEnvConstants.componentNameStringPattern, classFullName.substring(classFullName.lastIndexOf(".") + 1));
+            final String packageName = classFullName.substring(0, classFullName.lastIndexOf("."));
 
-            moduleClassName = moduleClassName.substring(0, moduleClassName.lastIndexOf(".") + 1) + sharpComponentSimpleName;
+            classes.add(ClassName.get(packageName, classSimpleName));
 
-            stringBuilderCodeBlock.append(moduleClassName).append(".class, ");
+            stringBuilderCodeBlock.append("$T.class, ");
         }
 
         for (AnnotationValue annotationValue : daggerDependencies) {
-            String moduleClassName = annotationValue.toString(); // includes .class at the end
-            moduleClassName = moduleClassName.substring(0, moduleClassName.length() - 6); // remove .class at the end
+            String classFullName = annotationValue.toString(); // includes .class at the end
+            classFullName = classFullName.substring(0, classFullName.length() - 6); // remove .class at the end
 
-            stringBuilderCodeBlock.append(moduleClassName).append(", ");
+            final String classSimpleName = classFullName.substring(classFullName.lastIndexOf(".") + 1);
+            final String packageName = classFullName.substring(0, classFullName.lastIndexOf("."));
+
+            classes.add(ClassName.get(packageName, classSimpleName));
+
+            stringBuilderCodeBlock.append("$T.class, ");
         }
 
         stringBuilderCodeBlock.setLength(stringBuilderCodeBlock.length() - 2);
         stringBuilderCodeBlock.append("}");
 
-        return stringBuilderCodeBlock.toString();
+        final CodeBlock.Builder moduleBlock = CodeBlock.builder().add(stringBuilderCodeBlock.toString(), classes.toArray());
+        return moduleBlock.build();
     }
 }
