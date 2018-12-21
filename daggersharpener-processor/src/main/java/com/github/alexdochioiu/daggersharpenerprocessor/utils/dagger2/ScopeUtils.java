@@ -30,7 +30,7 @@ public class ScopeUtils {
 
         if (scopeElement == null) {
             // TODO this is not a dagger2 class
-            MessagerWrapper.logError("Missing dagger2 dependency. Please add it to gradle!");
+            MessagerWrapper.logWarning("ScopeUtils: Missing dagger2 dependency. Please add it to gradle!");
             return false;
         }
         return true;

@@ -4,7 +4,6 @@ import com.github.alexdochioiu.daggersharpenerprocessor.MessagerWrapper;
 import com.github.alexdochioiu.daggersharpenerprocessor.utils.ScopeClassUtils;
 import com.github.alexdochioiu.daggersharpenerprocessor.utils.SharpEnvConstants;
 import com.github.alexdochioiu.daggersharpenerprocessor.utils.SharpenerAnnotationUtils;
-import com.github.alexdochioiu.daggersharpenerprocessor.utils.dagger2.ScopeUtils;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 
@@ -25,7 +24,8 @@ import javax.lang.model.type.TypeMirror;
  */
 @SuppressWarnings("WeakerAccess")
 public class SharpComponentModel {
-    public final TypeName injectedClass;
+    // the class annotated as @SharpComponent
+    public final TypeName annotatedClass;
 
     public final String packageString;
     public final String className;
@@ -44,7 +44,7 @@ public class SharpComponentModel {
      * @param typeElement   non-null type element for a class
      */
     public SharpComponentModel(final ClassName poetClassName, final TypeElement typeElement, final ProcessingEnvironment processingEnvironment) {
-        injectedClass = TypeName.get(typeElement.asType());
+        annotatedClass = TypeName.get(typeElement.asType());
         packageString = poetClassName.packageName();
         this.className = poetClassName.simpleName();
 

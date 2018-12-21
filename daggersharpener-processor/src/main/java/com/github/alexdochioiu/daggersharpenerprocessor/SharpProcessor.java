@@ -20,12 +20,14 @@ import com.github.alexdochioiu.daggersharpenerprocessor.utils.SharpComponentUtil
 import com.github.alexdochioiu.daggersharpenerprocessor.utils.SharpenerAnnotationUtils;
 import com.github.alexdochioiu.daggersharpenerprocessor.utils.dagger2.AnnotationUtils;
 import com.github.alexdochioiu.daggersharpenerprocessor.utils.dagger2.ScopeUtils;
+import com.github.alexdochioiu.daggersharpenerprocessor.utils.java.AnnotationValueUtils;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
+import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
 import java.io.IOException;
@@ -39,6 +41,7 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
+import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
@@ -110,15 +113,24 @@ public class SharpProcessor extends AbstractProcessor {
             generatedComponentBuilder.addAnnotation(className);
         }
 
-        ParameterSpec param = ParameterSpec.builder(model.injectedClass, "thisClass").build();
+        final ParameterSpec param = ParameterSpec.builder(model.annotatedClass, "thisClass").build();
 
         generatedComponentBuilder.addMethod(
                 MethodSpec.methodBuilder("inject")
-                        .returns(model.injectedClass)
+                        .returns(model.annotatedClass)
                         .addModifiers(Modifier.ABSTRACT, Modifier.PUBLIC)
                         .addParameter(param)
                         .build()
         );
+
+        for (AnnotationValue providedClass : model.getComponentProvides()) {
+            generatedComponentBuilder.addMethod(
+                    MethodSpec.methodBuilder(String.format("provide%s", AnnotationValueUtils.getSimpleName(providedClass)))
+                            .returns(TypeName.get(processingEnvironment.getElementUtils().getTypeElement(AnnotationValueUtils.getFullName(providedClass)).asType()))
+                            .addModifiers(Modifier.ABSTRACT, Modifier.PUBLIC)
+                            .build()
+            );
+        }
 
         try {
             JavaFile.builder(model.packageString, generatedComponentBuilder.build())
@@ -158,6 +170,7 @@ public class SharpProcessor extends AbstractProcessor {
 
     /**
      * <b>NOTE:</b> this assumes we already checked and a scope should be created for this component.
+     *
      * @param model the {@link SharpComponentModel} requiring a scope
      */
     private void createDaggerSharpScope(SharpComponentModel model) {

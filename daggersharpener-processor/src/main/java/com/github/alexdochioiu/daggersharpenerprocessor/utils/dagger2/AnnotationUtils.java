@@ -96,6 +96,8 @@ public class AnnotationUtils {
         final List<ClassName> classes = new LinkedList<>();
 
         stringBuilderCodeBlock.append("{");
+
+        //TODO use AnnotationValueUtils
         for (AnnotationValue annotationValue : sharpDependencies) {
             String classFullName = annotationValue.toString(); // includes .class at the end
             classFullName = classFullName.substring(0, classFullName.length() - 6); // remove .class at the end
