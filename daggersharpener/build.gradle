@@ -2,7 +2,7 @@ apply plugin: 'java-library'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
 
-def annotatorLibraryVersion = "0.0.1"
+def annotatorLibraryVersion = "0.1.0"
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
@@ -17,7 +17,7 @@ ext {
     publishedGroupId = 'com.github.alexdochioiu' // your module package name
     libraryName = 'daggersharpener'
     artifact = 'daggersharpener' // has to be same as your library module name
-    libraryDescription = 'Annotation library for interface injection'
+    libraryDescription = 'Annotation library for dependency injection'
     siteUrl = 'https://github.com/AlexDochioiu/DaggerSharpener'
     issuesUrl = 'https://github.com/AlexDochioiu/DaggerSharpener/issues'
     gitUrl = 'https://github.com/AlexDochioiu/DaggerSharpener.git'

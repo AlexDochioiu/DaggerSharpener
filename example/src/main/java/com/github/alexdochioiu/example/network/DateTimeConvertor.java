@@ -14,9 +14,6 @@ import org.joda.time.format.ISODateTimeFormat;
 
 import java.lang.reflect.Type;
 
-/**
- * Created by Alexandru Iustin Dochioiu on 21-Dec-18
- */
 public class DateTimeConvertor implements JsonSerializer<DateTime>, JsonDeserializer<DateTime>
 {
     /**

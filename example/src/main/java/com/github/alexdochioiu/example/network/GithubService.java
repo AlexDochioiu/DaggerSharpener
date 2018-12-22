@@ -9,9 +9,6 @@ import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
 
-/**
- * Created by Alexandru Iustin Dochioiu on 21-Dec-18
- */
 public interface GithubService {
     @GET("users/{username}/repos")
     Call<List<GithubRepo>> getReposForUser(@Path("username") String username);
