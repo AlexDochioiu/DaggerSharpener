@@ -3,6 +3,7 @@ package com.github.alexdochioiu.example;
 import android.app.Application;
 import android.content.res.Resources;
 
+import com.github.alexdochioiu.daggersharpener.NamedPair;
 import com.github.alexdochioiu.daggersharpener.SharpComponent;
 import com.github.alexdochioiu.example.network.GithubService;
 import com.squareup.picasso.Picasso;
@@ -16,8 +17,11 @@ import timber.log.Timber;
  */
 @SharpComponent(
         modules = {GithubServiceModule.class, PicassoModule.class},
-        provides = {Picasso.class, GithubService.class, Resources.class}
-        )
+        provides = {Picasso.class, GithubService.class, Resources.class},
+        providesNamed = {
+                @NamedPair(aName = "myPicasso", aClass = Picasso.class)
+        }
+)
 public class MyApplication extends Application {
 
     private SharpMyApplicationComponent component;

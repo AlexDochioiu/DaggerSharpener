@@ -52,6 +52,8 @@ public @interface SharpComponent {
      */
     Class<?>[] provides() default {};
 
+    NamedPair[] providesNamed() default {};
+
     /**
      * A scope for the component. {@link SharpScope} will create a new scope for this component.
      * <b>NOTE:</b> Using {@link NoScope} is not allowed for components
