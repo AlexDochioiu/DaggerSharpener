@@ -60,8 +60,6 @@ public class SharpProcessor extends AbstractProcessor {
         supportedAnnotation.add("com.github.alexdochioiu.daggersharpener.SharpComponent");
         supportedAnnotation.add("com.github.alexdochioiu.daggersharpener.SharpScope");
         supportedAnnotation.add("com.github.alexdochioiu.daggersharpener.NoScope");
-        supportedAnnotation.add("com.github.alexdochioiu.daggersharpener.SharpInject");
-        supportedAnnotation.add("com.github.alexdochioiu.daggersharpener.SharpProvides");
 
         return supportedAnnotation;
     }
