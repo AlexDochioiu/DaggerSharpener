@@ -35,6 +35,7 @@ public class SharpComponentModel {
     private final List<AnnotationValue> componentSharpDependencies = new LinkedList<>();
     private final List<AnnotationValue> componentModules = new LinkedList<>();
     private final List<AnnotationValue> componentProvides = new LinkedList<>();
+    private final List<AnnotationValue> componentInstanceBindings = new LinkedList<>();
 
 
     /**
@@ -125,6 +126,16 @@ public class SharpComponentModel {
                                 MessagerWrapper.logWarning(">> provides: %s", annotationValue);
                             }
                             break;
+                        case "bindsInstances":
+                            @SuppressWarnings("unchecked") List<? extends AnnotationValue> annotationBindsInstances
+                                    = (List<? extends AnnotationValue>) value;
+
+                            componentInstanceBindings.addAll(annotationBindsInstances);
+
+                            for (AnnotationValue annotationValue : annotationBindsInstances) {
+                                MessagerWrapper.logWarning(">> provides: %s", annotationValue);
+                            }
+                            break;
                         default:
                             MessagerWrapper.logWarning("Unknown parameter '%s' on SharpComponent", key);
                             break;
@@ -165,5 +176,9 @@ public class SharpComponentModel {
 
     public List<AnnotationValue> getComponentProvides() {
         return new LinkedList<>(componentProvides);
+    }
+
+    public List<AnnotationValue> getComponentInstanceBindings() {
+        return componentInstanceBindings;
     }
 }

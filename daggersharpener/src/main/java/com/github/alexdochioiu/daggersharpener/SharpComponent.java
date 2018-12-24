@@ -46,11 +46,13 @@ public @interface SharpComponent {
     /**
      * The list of classes/interfaces for which objects are provided by this {@link SharpComponent}
      * to other dagger/sharp components depending on it.
-     * <p>
-     * <b>NOTE:</b> This is experimental and might be fully replaced by providing dependencies
-     * solely using {@link SharpInject} and {@link SharpProvides}
      */
     Class<?>[] provides() default {};
+
+    /**
+     * The list of class/interface instances for which objects are bound to this {@link SharpComponent}
+     */
+    Class<?>[] bindsInstances() default {};
 
     /**
      * A scope for the component. {@link SharpScope} will create a new scope for this component.
