@@ -1,9 +1,26 @@
+/*
+ * Copyright 2019 Alexandru Iustin Dochioiu
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.github.alexdochioiu.daggersharpenerprocessor.models;
 
 import com.github.alexdochioiu.daggersharpenerprocessor.MessagerWrapper;
+import com.github.alexdochioiu.daggersharpenerprocessor.utils.ProvidesNamedUtils;
 import com.github.alexdochioiu.daggersharpenerprocessor.utils.ScopeClassUtils;
 import com.github.alexdochioiu.daggersharpenerprocessor.utils.SharpEnvConstants;
 import com.github.alexdochioiu.daggersharpenerprocessor.utils.SharpenerAnnotationUtils;
+import com.github.alexdochioiu.daggersharpenerprocessor.utils.java.NamedTypeMirror;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 
@@ -35,6 +52,7 @@ public class SharpComponentModel {
     private final List<AnnotationValue> componentSharpDependencies = new LinkedList<>();
     private final List<AnnotationValue> componentModules = new LinkedList<>();
     private final List<AnnotationValue> componentProvides = new LinkedList<>();
+    private final List<NamedTypeMirror> componentProvidesNamed = new LinkedList<>();
 
 
     /**
@@ -125,6 +143,12 @@ public class SharpComponentModel {
                                 MessagerWrapper.logWarning(">> provides: %s", annotationValue);
                             }
                             break;
+                        case "providesNamed":
+                            @SuppressWarnings("unchecked") List<? extends AnnotationValue> annotationProvidesNamed
+                                    = (List<? extends AnnotationValue>) value;
+
+                            componentProvidesNamed.addAll(ProvidesNamedUtils.getNamedProvides(annotationProvidesNamed));
+                            break;
                         default:
                             MessagerWrapper.logWarning("Unknown parameter '%s' on SharpComponent", key);
                             break;
@@ -165,5 +189,9 @@ public class SharpComponentModel {
 
     public List<AnnotationValue> getComponentProvides() {
         return new LinkedList<>(componentProvides);
+    }
+
+    public List<NamedTypeMirror> getComponentProvidesNamed() {
+        return componentProvidesNamed;
     }
 }

@@ -9,6 +9,7 @@ import com.github.alexdochioiu.example.network.GithubService;
 import com.squareup.picasso.Picasso;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import timber.log.Timber;
 
@@ -17,7 +18,7 @@ import timber.log.Timber;
  */
 @SharpComponent(
         modules = {GithubServiceModule.class, PicassoModule.class},
-        provides = {Picasso.class, GithubService.class, Resources.class},
+        provides = {GithubService.class, Resources.class},
         providesNamed = {
                 @NamedPair(aName = "myPicasso", aClass = Picasso.class)
         }
@@ -27,6 +28,7 @@ public class MyApplication extends Application {
     private SharpMyApplicationComponent component;
 
     @Inject
+    @Named("myPicasso")
     Picasso picasso;
 
     @Override
