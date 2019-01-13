@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Locale;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -42,7 +43,7 @@ class ReposAdapter extends RecyclerView.Adapter<ReposAdapter.ViewHolder> {
     private List<GithubRepo> repoList = new ArrayList<>(0);
 
     @Inject
-    ReposAdapter(@NonNull Picasso picasso, @NonNull Resources resources) {
+    ReposAdapter(@NonNull @Named("myPicasso") Picasso picasso, @NonNull Resources resources) {
         this.picasso = picasso;
         this.resources = resources;
     }

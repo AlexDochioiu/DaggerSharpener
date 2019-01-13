@@ -7,6 +7,8 @@ import com.google.gson.GsonBuilder;
 
 import org.joda.time.DateTime;
 
+import javax.inject.Named;
+
 import dagger.Module;
 import dagger.Provides;
 import okhttp3.OkHttpClient;

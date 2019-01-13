@@ -19,8 +19,10 @@ import com.github.alexdochioiu.daggersharpenerprocessor.models.SharpComponentMod
 import com.github.alexdochioiu.daggersharpenerprocessor.utils.SharpComponentUtils;
 import com.github.alexdochioiu.daggersharpenerprocessor.utils.SharpenerAnnotationUtils;
 import com.github.alexdochioiu.daggersharpenerprocessor.utils.dagger2.AnnotationUtils;
+import com.github.alexdochioiu.daggersharpenerprocessor.utils.dagger2.NamedAnnotationUtils;
 import com.github.alexdochioiu.daggersharpenerprocessor.utils.dagger2.ScopeUtils;
 import com.github.alexdochioiu.daggersharpenerprocessor.utils.java.AnnotationValueUtils;
+import com.github.alexdochioiu.daggersharpenerprocessor.utils.java.NamedTypeMirror;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
@@ -103,7 +105,7 @@ public class SharpProcessor extends AbstractProcessor {
                 .addModifiers(Modifier.PUBLIC);
 
         if (model.scope.isSharpScoped()) {
-            createDaggerSharpScope(model);
+            createDaggerSharpScopeFile(model);
 
             generatedComponentBuilder.addAnnotation(ClassName.get(model.packageString, model.getSharpScopeName()));
         } else {
@@ -121,10 +123,21 @@ public class SharpProcessor extends AbstractProcessor {
                         .build()
         );
 
-        for (AnnotationValue providedClass : model.getComponentProvides()) {
+        for (final AnnotationValue providedClass : model.getComponentProvides()) {
             generatedComponentBuilder.addMethod(
                     MethodSpec.methodBuilder(String.format("provide%s", AnnotationValueUtils.getSimpleName(providedClass)))
                             .returns(TypeName.get(processingEnvironment.getElementUtils().getTypeElement(AnnotationValueUtils.getFullName(providedClass)).asType()))
+                            .addModifiers(Modifier.ABSTRACT, Modifier.PUBLIC)
+                            .build()
+            );
+        }
+
+        for (NamedTypeMirror providedNamesClass : model.getComponentProvidesNamed()) {
+            ClassName className = (ClassName) ClassName.get(providedNamesClass.getTypeMirror());
+            generatedComponentBuilder.addMethod(
+                    MethodSpec.methodBuilder(String.format("provide%s_%s", className.simpleName(), providedNamesClass.getName()))
+                            .addAnnotation(NamedAnnotationUtils.getNamedAnnotation(providedNamesClass.getName()))
+                            .returns(className)
                             .addModifiers(Modifier.ABSTRACT, Modifier.PUBLIC)
                             .build()
             );
@@ -171,7 +184,7 @@ public class SharpProcessor extends AbstractProcessor {
      *
      * @param model the {@link SharpComponentModel} requiring a scope
      */
-    private void createDaggerSharpScope(SharpComponentModel model) {
+    private void createDaggerSharpScopeFile(SharpComponentModel model) {
         AnnotationSpec runtimeRetention = AnnotationSpec.builder(ClassName.get(ScopeUtils.getRetentionElement()))
                 .addMember("value", CodeBlock.builder().add("$T.RUNTIME", ScopeUtils.getRetentionPolicyElement()).build())
                 .build();
