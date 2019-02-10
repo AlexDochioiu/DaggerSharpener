@@ -33,13 +33,18 @@ public @interface SharpComponent {
     Class<?>[] modules() default {};
 
     /**
-     * A list of sharp components that are to be used as dependencies.
-     * TODO this comment
+     * A list of sharp components (classes annotated as <b>@SharpComponent</b>) that are to be used as
+     * dependencies.
+     * <b>NOTE:</b> This is ONLY for the sharp components created by the developer (e.g the activity
+     * class, fragment class, etc.). Do not use it with the generated files.
      */
     Class<?>[] sharpDependencies() default {};
 
     /**
-     * A list of dagger components that are to be used as dependencies.
+     * A list of dagger components (classes annotated as <b>@Component</b>) that are to be used as
+     * dependencies.
+     * <b>NOTE:</b> This is ONLY for the components created by the developer. Do not use it with
+     * generated files.
      */
     Class<?>[] dependencies() default {};
 
@@ -59,7 +64,6 @@ public @interface SharpComponent {
 
     /**
      * A scope for the component. {@link SharpScope} will create a new scope for this component.
-     * <b>NOTE:</b> Using {@link NoScope} is not allowed for components
      */
     Class<?> scope() default SharpScope.class;
 }

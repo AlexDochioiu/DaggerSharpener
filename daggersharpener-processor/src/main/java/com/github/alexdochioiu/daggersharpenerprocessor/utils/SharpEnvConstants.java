@@ -19,6 +19,10 @@ package com.github.alexdochioiu.daggersharpenerprocessor.utils;
  * Created by Alexandru Iustin Dochioiu on 8/30/2018
  */
 public class SharpEnvConstants {
+    public static final String containedPackage = "com.github.alexdochioiu.daggersharpener";
+    public static final String sharpComponentClassName = "SharpComponent";
+    public static final String sharpScopeClassName = "SharpScope";
+
     public static final String componentNameStringPattern = "Sharp%sComponent";
     public static final String scopeNameStringPattern = "Sharp%sScope";
 }

@@ -18,6 +18,7 @@ package com.github.alexdochioiu.daggersharpenerprocessor.utils;
 import com.github.alexdochioiu.daggersharpenerprocessor.MessagerWrapper;
 import com.github.alexdochioiu.daggersharpenerprocessor.utils.java.NamedTypeMirror;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +33,7 @@ import javax.lang.model.type.TypeMirror;
  */
 public class ProvidesNamedUtils {
 
-    public static List<NamedTypeMirror> getNamedProvides(final List<? extends AnnotationValue> annotationValues) {
+    public static List<NamedTypeMirror> getNamedProvides(final Collection<? extends AnnotationValue> annotationValues) {
         final List<NamedTypeMirror> namedProvidesList = new LinkedList<>();
 
         for (final AnnotationValue providesNamedAnnotation : annotationValues) {

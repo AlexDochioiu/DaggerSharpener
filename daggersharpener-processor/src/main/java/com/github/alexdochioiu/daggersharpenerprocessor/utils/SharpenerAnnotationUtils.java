@@ -37,7 +37,7 @@ public class SharpenerAnnotationUtils {
                 .getTypeElement("com.github.alexdochioiu.daggersharpener.SharpScope");
 
         if (sharpComponentAnnotation == null) {
-            MessagerWrapper.logError("Missing TeaTime (annotations) dependency. Please add it to gradle!");
+            MessagerWrapper.logError("Missing DaggerSharpener (annotations) dependency. Please add it to gradle!");
             return false;
         }
         return true;

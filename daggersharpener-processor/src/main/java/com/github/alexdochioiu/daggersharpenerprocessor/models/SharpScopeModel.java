@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.github.alexdochioiu.daggersharpenerprocessor.models;
+
+import com.github.alexdochioiu.daggersharpenerprocessor.general.Preconditions;
 
 import javax.lang.model.type.TypeMirror;
 
@@ -29,6 +32,7 @@ public class SharpScopeModel {
      * @param scopeTypeMirror the given scope
      */
     public SharpScopeModel(TypeMirror scopeTypeMirror) {
+        Preconditions.checkNotNull(scopeTypeMirror);
         this.scopeTypeMirror = scopeTypeMirror;
         isSharpScoped = false;
     }
