@@ -23,10 +23,10 @@ import java.lang.annotation.Target;
 /**
  * Created by Alexandru Iustin Dochioiu on 7/26/2018
  *
- * <b>NOTE:</b> When {@link SharpScope} is applied to a component, DaggerSharpener will automatically
- * generate a scope for that particular component!
- * <b>NOTE2:</b> When {@link SharpScope} is applied to a field TODO think this through
+ * <b>NOTE:</b> When {@link SharpScope} is applied to a {@link SharpComponent}, DaggerSharpener will
+ * automatically generate a scope for that particular component!
  */
+@SuppressWarnings("WeakerAccess")
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.ANNOTATION_TYPE)
 public @interface SharpScope {
