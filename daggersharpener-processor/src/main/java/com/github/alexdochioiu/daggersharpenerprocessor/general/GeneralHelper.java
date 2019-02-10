@@ -30,8 +30,13 @@ import javax.lang.model.element.Element;
  * Created by Alexandru Iustin Dochioiu on 03-Feb-19
  */
 public class GeneralHelper {
-    public ProcessingEnvironment processingEnvironment;
-    public RoundEnvironment roundEnvironment;
+    public final ProcessingEnvironment processingEnvironment;
+    public final RoundEnvironment roundEnvironment;
+
+    public GeneralHelper(ProcessingEnvironment processingEnvironment, RoundEnvironment roundEnvironment) {
+        this.processingEnvironment = processingEnvironment;
+        this.roundEnvironment = roundEnvironment;
+    }
 
 
     public TypeClass makeTypeClass(Element element) {

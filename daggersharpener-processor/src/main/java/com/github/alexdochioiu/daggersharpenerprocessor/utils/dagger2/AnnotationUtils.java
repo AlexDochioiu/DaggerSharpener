@@ -15,7 +15,6 @@
  */
 package com.github.alexdochioiu.daggersharpenerprocessor.utils.dagger2;
 
-import com.github.alexdochioiu.daggersharpenerprocessor.MessagerWrapper;
 import com.github.alexdochioiu.daggersharpenerprocessor.utils.SharpEnvConstants;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
@@ -32,19 +31,6 @@ import javax.lang.model.element.TypeElement;
  * Created by Alexandru Iustin Dochioiu on 7/26/2018
  */
 public class AnnotationUtils {
-    private static TypeElement daggerComponentTypeElement;
-
-    public static boolean init(ProcessingEnvironment processingEnvironment) {
-        daggerComponentTypeElement = processingEnvironment
-                .getElementUtils()
-                .getTypeElement("dagger.Component");
-
-        if (daggerComponentTypeElement == null) {
-            MessagerWrapper.logWarning("AnnotationUtils: Missing dagger2 dependency. Please add it to gradle!");
-            //return false;
-        }
-        return true;
-    }
 
     public static AnnotationSpec getDaggerComponentAnnotation(
             ProcessingEnvironment processingEnvironment,
@@ -52,7 +38,7 @@ public class AnnotationUtils {
             List<AnnotationValue> sharpDependencies,
             List<AnnotationValue> modules
     ) {
-        AnnotationSpec.Builder daggerComponentBuilder = AnnotationSpec.builder(ClassName.get(daggerComponentTypeElement));
+        AnnotationSpec.Builder daggerComponentBuilder = AnnotationSpec.builder(ClassName.get("dagger", "Component"));
 
         if (dependencies == null) {
             dependencies = new LinkedList<>();

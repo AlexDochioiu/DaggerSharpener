@@ -19,10 +19,8 @@ import com.github.alexdochioiu.daggersharpenerprocessor.general.GeneralHelper;
 import com.github.alexdochioiu.daggersharpenerprocessor.general.concrete.TypeClass;
 import com.github.alexdochioiu.daggersharpenerprocessor.models.SharpComponentModel;
 import com.github.alexdochioiu.daggersharpenerprocessor.utils.SharpEnvConstants;
-import com.github.alexdochioiu.daggersharpenerprocessor.utils.SharpenerAnnotationUtils;
 import com.github.alexdochioiu.daggersharpenerprocessor.utils.dagger2.AnnotationUtils;
 import com.github.alexdochioiu.daggersharpenerprocessor.utils.dagger2.NamedAnnotationUtils;
-import com.github.alexdochioiu.daggersharpenerprocessor.utils.dagger2.ScopeUtils;
 import com.github.alexdochioiu.daggersharpenerprocessor.utils.java.AnnotationValueUtils;
 import com.github.alexdochioiu.daggersharpenerprocessor.utils.java.NamedTypeMirror;
 import com.squareup.javapoet.AnnotationSpec;
@@ -47,7 +45,6 @@ import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 
@@ -58,8 +55,6 @@ import javax.lang.model.element.TypeElement;
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class SharpProcessor extends AbstractProcessor {
 
-    private GeneralHelper helpers = new GeneralHelper();
-
     @Override
     public Set<String> getSupportedAnnotationTypes() {
         Set<String> supportedAnnotation = new LinkedHashSet<>();
@@ -69,7 +64,6 @@ public class SharpProcessor extends AbstractProcessor {
     }
 
     private ProcessingEnvironment processingEnvironment;
-    private boolean initFinishedSuccessfully = true;
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnvironment) {
@@ -77,22 +71,11 @@ public class SharpProcessor extends AbstractProcessor {
 
         this.processingEnvironment = processingEnvironment;
         MessagerWrapper.initInstance(processingEnvironment.getMessager());
-
-        initFinishedSuccessfully &= AnnotationUtils.init(processingEnvironment);
-        initFinishedSuccessfully &= ScopeUtils.init(processingEnvironment);
-        initFinishedSuccessfully &= SharpenerAnnotationUtils.init(processingEnvironment);
-
-        helpers.processingEnvironment = processingEnvironment;
     }
 
     @Override
     public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnvironment) {
-        helpers.roundEnvironment = roundEnvironment;
-
-        if (!initFinishedSuccessfully) {
-            // TODO message
-            return false;
-        }
+        final GeneralHelper helpers = new GeneralHelper(processingEnvironment, roundEnvironment);
 
         for (SharpComponentModel model : getComponents(helpers)) {
             createDaggerComponent(model);
@@ -198,12 +181,12 @@ public class SharpProcessor extends AbstractProcessor {
      * @param model the {@link SharpComponentModel} requiring a scope
      */
     private void createDaggerSharpScopeFile(SharpComponentModel model) {
-        AnnotationSpec runtimeRetention = AnnotationSpec.builder(ClassName.get(ScopeUtils.getRetentionElement()))
-                .addMember("value", CodeBlock.builder().add("$T.RUNTIME", ScopeUtils.getRetentionPolicyElement()).build())
+        AnnotationSpec runtimeRetention = AnnotationSpec.builder(ClassName.get("java.lang.annotation", "Retention"))
+                .addMember("value", CodeBlock.builder().add("$T.RUNTIME", ClassName.get("java.lang.annotation", "RetentionPolicy")).build())
                 .build();
 
         TypeSpec generatedScopeBuilder = TypeSpec.annotationBuilder(model.getSharpScopeName())
-                .addAnnotation(ClassName.get(ScopeUtils.getScopeElement()))
+                .addAnnotation(ClassName.get("javax.inject", "Scope"))
                 .addAnnotation(runtimeRetention)
                 .addModifiers(Modifier.PUBLIC)
                 .build();
